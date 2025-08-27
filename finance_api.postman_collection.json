@@ -1,0 +1,891 @@
+{
+	"info": {
+		"_postman_id": "e45f7f23-4c51-4b47-8a03-7b135e8f7f1a",
+		"name": "Finance API",
+		"description": "Colección de endpoints para la API de gestión financiera",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Iniciar sesión y obtener el token de autenticación"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para autenticación y gestión de sesiones"
+		},
+		{
+			"name": "Categorías",
+			"item": [
+				{
+					"name": "Obtener todas las categorías",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							]
+						},
+						"description": "Obtener todas las categorías"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener categorías por tipo",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories?type=income",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "income"
+								}
+							]
+						},
+						"description": "Obtener categorías por tipo (income o expense)"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva categoría",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nueva categoría\",\n  \"description\": \"Descripción de la categoría\",\n  \"type\": \"income\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							]
+						},
+						"description": "Crear una nueva categoría"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar categoría",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Categoría actualizada\",\n  \"description\": \"Nueva descripción\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_id}}"
+							]
+						},
+						"description": "Actualizar una categoría existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar categoría",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{category_id}}"
+							]
+						},
+						"description": "Eliminar una categoría"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de categorías"
+		},
+		{
+			"name": "Transacciones",
+			"item": [
+				{
+					"name": "Obtener todas las transacciones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions"
+							]
+						},
+						"description": "Obtener todas las transacciones"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener transacciones con filtros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions?startDate=2025-01-01&endDate=2025-12-31&type=income&categoryId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2025-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2025-12-31"
+								},
+								{
+									"key": "type",
+									"value": "income"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Obtener transacciones con filtros específicos"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener transacción por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Obtener una transacción específica por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva transacción",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount_net\": 1000.00,\n  \"tax_amount\": 190.00,\n  \"amount_total\": 1190.00,\n  \"description\": \"Pago de servicio\",\n  \"document_number\": 12345,\n  \"transaction_date\": \"2025-08-22\",\n  \"category_id\": 3,\n  \"vendor_id\": 1,\n  \"payment_type_id\": 1,\n  \"status_id\": 1,\n  \"type\": \"expense\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions"
+							]
+						},
+						"description": "Crear una nueva transacción"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear transacción completa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount_net\": 10000.00,\n  \"tax_amount\": 1900.00,\n  \"amount_total\": 11900.00,\n  \"description\": \"Factura de servicio\",\n  \"document_number\": 12345,\n  \"transaction_date\": \"2025-08-22\",\n  \"category_id\": 3,\n  \"vendor_id\": 1,\n  \"payment_type_id\": 4,\n  \"status_id\": 1,\n  \"type\": \"expense\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions"
+							]
+						},
+						"description": "Crear una transacción con todos los campos disponibles"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar transacción",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount_net\": 1200.00,\n  \"tax_amount\": 228.00,\n  \"amount_total\": 1428.00,\n  \"description\": \"Descripción actualizada\",\n  \"document_number\": 12345,\n  \"transaction_date\": \"2025-08-25\",\n  \"category_id\": 3,\n  \"vendor_id\": 1,\n  \"payment_type_id\": 1,\n  \"status_id\": 1,\n  \"type\": \"expense\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Actualizar una transacción existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar transacción",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Eliminar una transacción"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de transacciones (ingresos y gastos)"
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Obtener todos los clientes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients"
+							]
+						},
+						"description": "Obtener todos los clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener clientes con filtros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients?name=Cliente&industry=Tecnología&country=Chile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Cliente"
+								},
+								{
+									"key": "industry",
+									"value": "Tecnología"
+								},
+								{
+									"key": "country",
+									"value": "Chile"
+								}
+							]
+						},
+						"description": "Obtener clientes con filtros específicos"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener cliente por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients",
+								"{{client_id}}"
+							]
+						},
+						"description": "Obtener un cliente específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo cliente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Cliente Ejemplo\",\n  \"tax_id\": \"12345678-9\",\n  \"contact_name\": \"Juan Pérez\",\n  \"email\": \"cliente@ejemplo.com\",\n  \"phone\": \"+56912345678\",\n  \"address\": \"Av. Principal 123\",\n  \"city\": \"Santiago\",\n  \"country\": \"Chile\",\n  \"industry\": \"Tecnología\",\n  \"notes\": \"Notas sobre el cliente\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients"
+							]
+						},
+						"description": "Crear un nuevo cliente"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar cliente",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Cliente Actualizado\",\n  \"tax_id\": \"12345678-9\",\n  \"contact_name\": \"Juan Pérez Actualizado\",\n  \"email\": \"cliente.actualizado@ejemplo.com\",\n  \"phone\": \"+56987654321\",\n  \"address\": \"Nueva dirección 456\",\n  \"city\": \"Viña del Mar\",\n  \"country\": \"Chile\",\n  \"industry\": \"Servicios\",\n  \"notes\": \"Notas actualizadas\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients",
+								"{{client_id}}"
+							]
+						},
+						"description": "Actualizar un cliente existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar cliente",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clients",
+								"{{client_id}}"
+							]
+						},
+						"description": "Eliminar un cliente"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de clientes"
+		},
+		{
+			"name": "Proveedores",
+			"item": [
+				{
+					"name": "Obtener todos los proveedores",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors"
+							]
+						},
+						"description": "Obtener todos los proveedores"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener proveedores con filtros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors?name=Proveedor&industry=Servicios&country=Chile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Proveedor"
+								},
+								{
+									"key": "industry",
+									"value": "Servicios"
+								},
+								{
+									"key": "country",
+									"value": "Chile"
+								}
+							]
+						},
+						"description": "Obtener proveedores con filtros específicos"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener proveedor por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors/{{vendor_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"{{vendor_id}}"
+							]
+						},
+						"description": "Obtener un proveedor específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo proveedor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Proveedor Ejemplo\",\n  \"tax_id\": \"76543210-9\",\n  \"contact_name\": \"María González\",\n  \"email\": \"proveedor@ejemplo.com\",\n  \"phone\": \"+56922334455\",\n  \"address\": \"Calle Comercio 789\",\n  \"city\": \"Santiago\",\n  \"country\": \"Chile\",\n  \"industry\": \"Servicios\",\n  \"notes\": \"Notas sobre el proveedor\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors"
+							]
+						},
+						"description": "Crear un nuevo proveedor"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar proveedor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Proveedor Actualizado\",\n  \"tax_id\": \"76543210-9\",\n  \"contact_name\": \"María González Actualizada\",\n  \"email\": \"proveedor.actualizado@ejemplo.com\",\n  \"phone\": \"+56944556677\",\n  \"address\": \"Nueva dirección comercial 456\",\n  \"city\": \"Concepción\",\n  \"country\": \"Chile\",\n  \"industry\": \"Manufactura\",\n  \"notes\": \"Notas actualizadas del proveedor\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors/{{vendor_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"{{vendor_id}}"
+							]
+						},
+						"description": "Actualizar un proveedor existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar proveedor",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/vendors/{{vendor_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"{{vendor_id}}"
+							]
+						},
+						"description": "Eliminar un proveedor"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de proveedores"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "auth_token",
+			"value": "tu_token_jwt_aquí"
+		},
+		{
+			"key": "user_email",
+			"value": "usuario@ejemplo.com"
+		},
+		{
+			"key": "user_password",
+			"value": "contraseña_segura"
+		},
+		{
+			"key": "category_id",
+			"value": "1"
+		},
+		{
+			"key": "transaction_id",
+			"value": "uuid_transaccion"
+		},
+		{
+			"key": "client_id",
+			"value": "1",
+			"description": "ID para las rutas de clientes (ya no se usa en transacciones)"
+		},
+		{
+			"key": "vendor_id",
+			"value": "1"
+		}
+	]
+}
