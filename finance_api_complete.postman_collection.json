@@ -295,6 +295,14 @@
 					}
 				},
 				{
+					"name": "Get Document Type by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/document-types/1"
+					}
+				},
+				{
 					"name": "Create Document Type",
 					"request": {
 						"method": "POST",
@@ -304,9 +312,32 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"code\": \"ND\", \"name\": \"Nota de Débito\", \"description\": \"Documento para aumentar el valor\", \"is_electronic\": true}"
+							"raw": "{\"code\": \"ND\", \"name\": \"Nota de Débito\", \"description\": \"Documento para aumentar el valor de una factura\", \"is_electronic\": true}"
 						},
 						"url": "{{base_url}}/api/v1/document-types"
+					}
+				},
+				{
+					"name": "Update Document Type",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Nota de Débito Actualizada\", \"description\": \"Descripción actualizada del documento\"}"
+						},
+						"url": "{{base_url}}/api/v1/document-types/1"
+					}
+				},
+				{
+					"name": "Delete Document Type",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/document-types/1"
 					}
 				}
 			]
@@ -323,6 +354,22 @@
 					}
 				},
 				{
+					"name": "Get Tax Rate by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/tax-rates/1"
+					}
+				},
+				{
+					"name": "Get Default Tax Rate",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/tax-rates/default"
+					}
+				},
+				{
 					"name": "Create Tax Rate",
 					"request": {
 						"method": "POST",
@@ -332,9 +379,32 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"name\": \"IVA Especial\", \"rate\": 15.00, \"description\": \"Tasa especial\", \"is_default\": false}"
+							"raw": "{\"name\": \"IVA Especial\", \"rate\": 15.00, \"description\": \"Tasa especial para ciertos productos\", \"is_default\": false}"
 						},
 						"url": "{{base_url}}/api/v1/tax-rates"
+					}
+				},
+				{
+					"name": "Update Tax Rate",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"IVA Especial Actualizado\", \"rate\": 16.00, \"description\": \"Descripción actualizada\"}"
+						},
+						"url": "{{base_url}}/api/v1/tax-rates/1"
+					}
+				},
+				{
+					"name": "Delete Tax Rate",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/tax-rates/1"
 					}
 				}
 			]
