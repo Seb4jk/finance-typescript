@@ -31,8 +31,7 @@ export class TransactionController {
         type 
       } = req.body;
       
-      if (!document_number || !document_type_id || !transaction_date || !amount_net || 
-          !tax_amount || !amount_total || !category_id || !vendor_id || 
+      if (!document_number || !document_type_id || !transaction_date || !amount_net || !amount_total || !category_id || !vendor_id || 
           !status_id || !type || !['income', 'expense'].includes(type)) {
         return res.status(400).json({ 
           message: 'Todos los campos son requeridos. El tipo debe ser "income" o "expense"' 
