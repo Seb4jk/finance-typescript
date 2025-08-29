@@ -8,24 +8,26 @@ export class TransactionModel {
     const id = uuidv4();
     await pool.execute<ResultSetHeader>(
       `INSERT INTO transactions (
-        id, document_number, transaction_date, description, 
-        amount_net, tax_amount, amount_total, 
+        id, document_number, document_type_id, transaction_date, description, 
+        amount_net, tax_amount, tax_rate_id, amount_total, 
         category_id, vendor_id, 
-        payment_type_id, status_id, user_id, type
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        status_id, user_id, company_id, type
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         Number(data.document_number),
+        data.document_type_id,
         data.transaction_date,
         data.description,
         data.amount_net,
         data.tax_amount,
+        data.tax_rate_id,
         data.amount_total,
         data.category_id,
         data.vendor_id,
-        data.payment_type_id,
         data.status_id,
         data.user_id,
+        data.company_id,
         data.type
       ]
     );
@@ -38,13 +40,19 @@ export class TransactionModel {
       `SELECT t.*, 
         c.name as category_name,
         v.name as vendor_name,
-        pt.name as payment_type_name,
-        s.name as status_name
+        s.name as status_name,
+        dt.name as document_type_name,
+        dt.code as document_type_code,
+        tr.name as tax_rate_name,
+        tr.rate as tax_rate,
+        comp.name as company_name
        FROM transactions t
        INNER JOIN categories c ON t.category_id = c.id
        LEFT JOIN vendors v ON t.vendor_id = v.id
-       LEFT JOIN payment_types pt ON t.payment_type_id = pt.id
        LEFT JOIN status s ON t.status_id = s.id
+       LEFT JOIN document_types dt ON t.document_type_id = dt.id
+       LEFT JOIN tax_rates tr ON t.tax_rate_id = tr.id
+       LEFT JOIN companies comp ON t.company_id = comp.id
        WHERE t.id = ? AND t.user_id = ?`,
       [id, userId]
     );
@@ -66,13 +74,19 @@ export class TransactionModel {
       SELECT t.*, 
         c.name as category_name,
         v.name as vendor_name,
-        pt.name as payment_type_name,
-        s.name as status_name 
+        s.name as status_name,
+        dt.name as document_type_name,
+        dt.code as document_type_code,
+        tr.name as tax_rate_name,
+        tr.rate as tax_rate,
+        comp.name as company_name 
       FROM transactions t
       INNER JOIN categories c ON t.category_id = c.id
       LEFT JOIN vendors v ON t.vendor_id = v.id
-      LEFT JOIN payment_types pt ON t.payment_type_id = pt.id
       LEFT JOIN status s ON t.status_id = s.id
+      LEFT JOIN document_types dt ON t.document_type_id = dt.id
+      LEFT JOIN tax_rates tr ON t.tax_rate_id = tr.id
+      LEFT JOIN companies comp ON t.company_id = comp.id
       WHERE t.user_id = ?
     `;
     
@@ -105,9 +119,20 @@ export class TransactionModel {
         params.push(filters.statusId);
       }
       
-      if (filters.paymentTypeId) {
-        query += ' AND t.payment_type_id = ?';
-        params.push(filters.paymentTypeId);
+      
+      if (filters.documentTypeId) {
+        query += ' AND t.document_type_id = ?';
+        params.push(filters.documentTypeId);
+      }
+      
+      if (filters.taxRateId) {
+        query += ' AND t.tax_rate_id = ?';
+        params.push(filters.taxRateId);
+      }
+      
+      if (filters.companyId) {
+        query += ' AND t.company_id = ?';
+        params.push(filters.companyId);
       }
       
       if (filters.type) {

@@ -1,5 +1,5 @@
 -- Script completo para base de datos finance_service
--- Creación de la base de datos
+-- Modificado para separar pagos de transacciones
 CREATE DATABASE IF NOT EXISTS finance_service;
 USE finance_service;
 
@@ -21,6 +21,57 @@ CREATE TABLE IF NOT EXISTS payment_types (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY unique_payment_type_name (name)
+);
+
+-- Tabla de empresas (para soporte multi-empresa)
+CREATE TABLE IF NOT EXISTS companies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  tax_id VARCHAR(20) NOT NULL,
+  address VARCHAR(255),
+  city VARCHAR(50),
+  country VARCHAR(50),
+  phone VARCHAR(20),
+  email VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_company_tax_id (tax_id)
+);
+
+-- Tabla de asignación de compañías a usuarios
+CREATE TABLE IF NOT EXISTS company_users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  company_id INT NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_company_user (company_id, user_id)
+);
+
+-- Tabla de tipos de documentos
+CREATE TABLE IF NOT EXISTS document_types (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(10) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255),
+  is_electronic BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_document_type_code (code)
+);
+
+-- Tabla de tasas de impuestos
+CREATE TABLE IF NOT EXISTS tax_rates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  rate DECIMAL(5,2) NOT NULL,
+  description VARCHAR(255),
+  is_default BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_tax_rate_name (name)
 );
 
 -- Clients Table (Clientes)
@@ -73,28 +124,47 @@ CREATE TABLE IF NOT EXISTS categories (
   UNIQUE KEY unique_category_name_per_type (name, type)
 );
 
--- Transactions Table
+-- Transactions Table (SIN payment_type_id)
 CREATE TABLE IF NOT EXISTS transactions (
   id VARCHAR(36) PRIMARY KEY,
   document_number INT NOT NULL,
+  document_type_id INT NOT NULL,
   transaction_date DATE NOT NULL,
-  description VARCHAR(255) NOT NULL,
+  description VARCHAR(255) NULL,
   amount_net DECIMAL(10,2) NOT NULL,
   tax_amount DECIMAL(10,2) NOT NULL,
+  tax_rate_id INT,
   amount_total DECIMAL(10,2) NOT NULL,
   category_id INT NOT NULL,
   vendor_id INT NOT NULL,
-  payment_type_id INT NOT NULL,
   status_id INT NOT NULL,
   user_id VARCHAR(36) NOT NULL,
+  company_id INT,
   type ENUM('income', 'expense') NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
   FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE RESTRICT,
-  FOREIGN KEY (payment_type_id) REFERENCES payment_types(id) ON DELETE RESTRICT,
   FOREIGN KEY (status_id) REFERENCES status(id) ON DELETE RESTRICT,
+  FOREIGN KEY (document_type_id) REFERENCES document_types(id) ON DELETE RESTRICT,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+  FOREIGN KEY (tax_rate_id) REFERENCES tax_rates(id) ON DELETE RESTRICT,
   UNIQUE KEY unique_document_number (document_number)
+);
+
+-- Transaction Payments Table (para manejar múltiples pagos por transacción)
+CREATE TABLE IF NOT EXISTS transaction_payments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  transaction_id VARCHAR(36) NOT NULL,
+  payment_type_id INT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  payment_date DATE NOT NULL,
+  reference_number VARCHAR(100),
+  notes VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+  FOREIGN KEY (payment_type_id) REFERENCES payment_types(id) ON DELETE RESTRICT
 );
 
 -- Insert default status
@@ -113,6 +183,20 @@ INSERT INTO payment_types (name, description) VALUES
 ('Transferencia', 'Transferencia bancaria'),
 ('Cheque', 'Pago con cheque');
 
+-- Insertar tipos de documentos predeterminados para Chile
+INSERT INTO document_types (code, name, description, is_electronic) VALUES
+('FE', 'Factura Electrónica', 'Documento tributario electrónico para ventas con IVA', true),
+('FEE', 'Factura Exenta Electrónica', 'Documento tributario electrónico para ventas sin IVA', true),
+('BE', 'Boleta Electrónica', 'Boleta para consumidor final electrónica', true),
+('BHE', 'Boleta de Honorarios Electrónica', 'Documento electrónico para servicios profesionales', true);
+
+-- Insertar tasas de impuestos predeterminadas
+INSERT INTO tax_rates (name, rate, description, is_default) VALUES
+('IVA 19%', 19.00, 'Impuesto al valor agregado estándar de Chile', true),
+('Exento', 0.00, 'Productos o servicios exentos de IVA', false),
+('IVA Reducido', 10.00, 'Tasa reducida para ciertos productos o servicios', false),
+('Retención 10%', 10.00, 'Retención para boletas de honorarios', false);
+
 -- Insert default categories
 INSERT INTO categories (name, description, type, is_default) VALUES
 ('Inversiones', 'Ingresos por inversiones', 'income', true),
@@ -130,3 +214,15 @@ INSERT INTO categories (name, description, type, is_default) VALUES
 ('Suministros', 'Material de oficina y suministros', 'expense', true),
 ('Impuestos', 'Pagos de impuestos', 'expense', true),
 ('Otros Gastos', 'Gastos diversos', 'expense', true);
+
+-- Insertar compañías de prueba
+INSERT INTO companies (name, tax_id, address, city, country, phone, email) VALUES
+('Empresa Comercial Test', '76.123.456-7', 'Avenida Libertador 1234', 'Santiago', 'Chile', '+56 2 2123 4567', 'contacto@empresacomercial.cl'),
+('Servicios Profesionales SA', '77.987.654-3', 'Los Conquistadores 2345', 'Providencia', 'Chile', '+56 2 2765 4321', 'info@serviciospro.cl'),
+('Ingtech SpA', '17.728.725-3', 'Los Conquistadores 2345', 'Providencia', 'Chile', '+56 2 2765 4321', 'info@serviciospro.cl');
+
+-- Asignar compañías al usuario de prueba
+INSERT INTO company_users (company_id, user_id, is_admin) VALUES
+(1, '3f8c0e70-27f1-11f0-aaff-2ff22f13d1e2', true),
+(2, '3f8c0e70-27f1-11f0-aaff-2ff22f13d1e2', true),
+(3, '3f8c0e70-27f1-11f0-aaff-2ff22f13d1e2', true);

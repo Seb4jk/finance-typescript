@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { TransactionModel } from '../models/Transaction';
 import { CategoryModel } from '../models/Category';
+import { DocumentTypeModel } from '../models/DocumentType';
+import { TaxRateModel } from '../models/TaxRate';
+import { CompanyModel } from '../models/Company';
 import { TokenPayload } from '../types/auth';
 import { TransactionFilters } from '../types/models';
 
@@ -14,21 +17,23 @@ export class TransactionController {
 
       const { 
         document_number, 
+        document_type_id,
         transaction_date, 
         description, 
         amount_net, 
         tax_amount, 
+        tax_rate_id,
         amount_total, 
         category_id, 
         vendor_id, 
-        payment_type_id, 
         status_id, 
+        company_id,
         type 
       } = req.body;
       
-      if (!document_number || !transaction_date || !description || !amount_net || 
+      if (!document_number || !document_type_id || !transaction_date || !amount_net || 
           !tax_amount || !amount_total || !category_id || !vendor_id || 
-          !payment_type_id || !status_id || !type || !['income', 'expense'].includes(type)) {
+          !status_id || !type || !['income', 'expense'].includes(type)) {
         return res.status(400).json({ 
           message: 'Todos los campos son requeridos. El tipo debe ser "income" o "expense"' 
         });
@@ -48,6 +53,34 @@ export class TransactionController {
       if (!category) {
         return res.status(404).json({ message: 'Categoría no encontrada' });
       }
+
+      // Check if document type exists
+      const documentType = await DocumentTypeModel.findById(document_type_id);
+      if (!documentType) {
+        return res.status(404).json({ message: 'Tipo de documento no encontrado' });
+      }
+      
+      // Check if tax rate exists (if provided)
+      if (tax_rate_id) {
+        const taxRate = await TaxRateModel.findById(tax_rate_id);
+        if (!taxRate) {
+          return res.status(404).json({ message: 'Tasa de impuesto no encontrada' });
+        }
+      }
+      
+      // Check if company exists and user has access to it (if provided)
+      if (company_id) {
+        const company = await CompanyModel.findById(company_id);
+        if (!company) {
+          return res.status(404).json({ message: 'Compañía no encontrada' });
+        }
+        
+        // Verify user has access to this company
+        const hasAccess = await CompanyModel.isUserAssigned(company_id, userId);
+        if (!hasAccess) {
+          return res.status(403).json({ message: 'No tienes permiso para utilizar esta compañía' });
+        }
+      }
       
       // Check if category type matches transaction type
       if (category.type !== type) {
@@ -58,15 +91,17 @@ export class TransactionController {
 
       const transactionId = await TransactionModel.create({
         document_number: Number(document_number),
+        document_type_id: Number(document_type_id),
         description,
         transaction_date: new Date(transaction_date),
         amount_net: Number(amount_net),
         tax_amount: Number(tax_amount),
+        tax_rate_id: tax_rate_id ? Number(tax_rate_id) : undefined,
         amount_total: Number(amount_total),
         category_id: Number(category_id),
         vendor_id: Number(vendor_id),
-        payment_type_id: Number(payment_type_id),
         status_id: Number(status_id),
+        company_id: company_id ? Number(company_id) : undefined,
         user_id: userId,
         type
       });
@@ -93,9 +128,15 @@ export class TransactionController {
       if (req.query.startDate) filters.startDate = req.query.startDate as string;
       if (req.query.endDate) filters.endDate = req.query.endDate as string;
       if (req.query.categoryId) filters.categoryId = Number(req.query.categoryId);
+      if (req.query.vendorId) filters.vendorId = Number(req.query.vendorId);
+      if (req.query.statusId) filters.statusId = Number(req.query.statusId);
+      if (req.query.documentTypeId) filters.documentTypeId = Number(req.query.documentTypeId);
+      if (req.query.taxRateId) filters.taxRateId = Number(req.query.taxRateId);
+      if (req.query.companyId) filters.companyId = Number(req.query.companyId);
       if (req.query.type && ['income', 'expense'].includes(req.query.type as string)) {
         filters.type = req.query.type as 'income' | 'expense';
       }
+      if (req.query.documentNumber) filters.documentNumber = req.query.documentNumber as string;
       
       const transactions = await TransactionModel.findAll(userId, filters);
       return res.json(transactions);
@@ -135,7 +176,22 @@ export class TransactionController {
       }
 
       const { id } = req.params;
-      const { amount, description, transaction_date, category_id, type } = req.body;
+      const { 
+        document_number, 
+        document_type_id,
+        transaction_date, 
+        description, 
+        amount_net, 
+        tax_amount, 
+        tax_rate_id,
+        amount_total, 
+        category_id, 
+        vendor_id, 
+        payment_type_id, 
+        status_id, 
+        company_id,
+        type 
+      } = req.body;
       
       // Check if transaction exists and belongs to user
       const existingTransaction = await TransactionModel.findById(id, userId);
@@ -159,12 +215,51 @@ export class TransactionController {
           });
         }
       }
+      
+      // Validate document type if changing
+      if (document_type_id) {
+        const documentType = await DocumentTypeModel.findById(document_type_id);
+        if (!documentType) {
+          return res.status(404).json({ message: 'Tipo de documento no encontrado' });
+        }
+      }
+      
+      // Validate tax rate if changing
+      if (tax_rate_id) {
+        const taxRate = await TaxRateModel.findById(tax_rate_id);
+        if (!taxRate) {
+          return res.status(404).json({ message: 'Tasa de impuesto no encontrada' });
+        }
+      }
+      
+      // Validate company if changing
+      if (company_id) {
+        const company = await CompanyModel.findById(company_id);
+        if (!company) {
+          return res.status(404).json({ message: 'Compañía no encontrada' });
+        }
+        
+        // Verify user has access to this company
+        const hasAccess = await CompanyModel.isUserAssigned(company_id, userId);
+        if (!hasAccess) {
+          return res.status(403).json({ message: 'No tienes permiso para utilizar esta compañía' });
+        }
+      }
 
       const updateData: any = {};
-      if (amount !== undefined) updateData.amount = Number(amount);
+      if (document_number !== undefined) updateData.document_number = Number(document_number);
+      if (document_type_id !== undefined) updateData.document_type_id = Number(document_type_id);
       if (description !== undefined) updateData.description = description;
       if (transaction_date !== undefined) updateData.transaction_date = new Date(transaction_date);
+      if (amount_net !== undefined) updateData.amount_net = Number(amount_net);
+      if (tax_amount !== undefined) updateData.tax_amount = Number(tax_amount);
+      if (tax_rate_id !== undefined) updateData.tax_rate_id = Number(tax_rate_id);
+      if (amount_total !== undefined) updateData.amount_total = Number(amount_total);
       if (category_id !== undefined) updateData.category_id = Number(category_id);
+      if (vendor_id !== undefined) updateData.vendor_id = Number(vendor_id);
+      if (payment_type_id !== undefined) updateData.payment_type_id = Number(payment_type_id);
+      if (status_id !== undefined) updateData.status_id = Number(status_id);
+      if (company_id !== undefined) updateData.company_id = Number(company_id);
       if (type !== undefined) updateData.type = type;
 
       const updated = await TransactionModel.update(id, userId, updateData);

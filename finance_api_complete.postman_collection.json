@@ -1,0 +1,343 @@
+{
+	"info": {
+		"_postman_id": "finance-api-complete-crud",
+		"name": "Finance API - Complete CRUD Collection",
+		"description": "Colección completa con todos los endpoints CRUD del sistema financiero",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "token",
+			"value": "your_jwt_token_here"
+		},
+		{
+			"key": "company_id",
+			"value": "1"
+		},
+		{
+			"key": "transaction_id",
+			"value": "transaction_uuid_here"
+		},
+		{
+			"key": "payment_id",
+			"value": "1"
+		}
+	],
+	"item": [
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "Get User Assigned Companies",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/companies/assigned"
+					}
+				},
+				{
+					"name": "Create Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Nueva Empresa SPA\", \"tax_id\": \"76.123.456-K\", \"address\": \"Av. Providencia 1234\", \"city\": \"Santiago\", \"country\": \"Chile\", \"phone\": \"+56 2 2345 6789\", \"email\": \"contacto@nuevaempresa.cl\"}"
+						},
+						"url": "{{base_url}}/api/v1/companies"
+					}
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Empresa Actualizada SPA\", \"address\": \"Nueva dirección 5678\"}"
+						},
+						"url": "{{base_url}}/api/v1/companies/{{company_id}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/transactions?companyId={{company_id}}"
+					}
+				},
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"document_number\": 12345, \"document_type_id\": 1, \"transaction_date\": \"2024-03-15\", \"description\": \"Compra de suministros\", \"amount_net\": 100000, \"tax_amount\": 19000, \"tax_rate_id\": 1, \"amount_total\": 119000, \"category_id\": 13, \"vendor_id\": 1, \"status_id\": 1, \"company_id\": {{company_id}}, \"type\": \"expense\"}"
+						},
+						"url": "{{base_url}}/api/v1/transactions"
+					}
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"description\": \"Compra actualizada\", \"amount_net\": 150000, \"tax_amount\": 28500, \"amount_total\": 178500}"
+						},
+						"url": "{{base_url}}/api/v1/transactions/{{transaction_id}}"
+					}
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/transactions/{{transaction_id}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "Transaction Payments",
+			"item": [
+				{
+					"name": "Get Payment Summary",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/transaction/{{transaction_id}}/payments/summary"
+					}
+				},
+				{
+					"name": "Create Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"payment_type_id\": 1, \"amount\": 59500, \"payment_date\": \"2024-03-15\", \"reference_number\": \"TRF-001234\", \"notes\": \"Pago parcial\"}"
+						},
+						"url": "{{base_url}}/api/v1/transaction/{{transaction_id}}/payments"
+					}
+				},
+				{
+					"name": "Update Payment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"amount\": 65000, \"notes\": \"Pago actualizado\"}"
+						},
+						"url": "{{base_url}}/api/v1/payments/{{payment_id}}"
+					}
+				},
+				{
+					"name": "Delete Payment",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/payments/{{payment_id}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/categories"
+					}
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Marketing\", \"description\": \"Gastos de marketing\", \"type\": \"expense\"}"
+						},
+						"url": "{{base_url}}/api/v1/categories"
+					}
+				}
+			]
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/clients"
+					}
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Cliente Nuevo SA\", \"tax_id\": \"76.555.666-7\", \"contact_name\": \"Juan Pérez\", \"email\": \"juan@cliente.cl\", \"phone\": \"+56 2 2111 2222\", \"address\": \"Av. Las Condes 1234\", \"city\": \"Santiago\", \"country\": \"Chile\", \"industry\": \"Tecnología\", \"notes\": \"Cliente potencial\"}"
+						},
+						"url": "{{base_url}}/api/v1/clients"
+					}
+				}
+			]
+		},
+		{
+			"name": "Vendors",
+			"item": [
+				{
+					"name": "Get All Vendors",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/vendors"
+					}
+				},
+				{
+					"name": "Create Vendor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Proveedor Nuevo SA\", \"tax_id\": \"77.888.999-0\", \"contact_name\": \"María González\", \"email\": \"maria@proveedor.cl\", \"phone\": \"+56 2 3333 4444\", \"address\": \"Av. Providencia 5678\", \"city\": \"Santiago\", \"country\": \"Chile\", \"industry\": \"Suministros\", \"notes\": \"Proveedor de oficina\"}"
+						},
+						"url": "{{base_url}}/api/v1/vendors"
+					}
+				}
+			]
+		},
+		{
+			"name": "Payment Types",
+			"item": [
+				{
+					"name": "Get All Payment Types",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/payment-types"
+					}
+				}
+			]
+		},
+		{
+			"name": "Status",
+			"item": [
+				{
+					"name": "Get All Status",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/status"
+					}
+				}
+			]
+		},
+		{
+			"name": "Document Types",
+			"item": [
+				{
+					"name": "Get All Document Types",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/document-types"
+					}
+				},
+				{
+					"name": "Create Document Type",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"code\": \"ND\", \"name\": \"Nota de Débito\", \"description\": \"Documento para aumentar el valor\", \"is_electronic\": true}"
+						},
+						"url": "{{base_url}}/api/v1/document-types"
+					}
+				}
+			]
+		},
+		{
+			"name": "Tax Rates",
+			"item": [
+				{
+					"name": "Get All Tax Rates",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/tax-rates"
+					}
+				},
+				{
+					"name": "Create Tax Rate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"IVA Especial\", \"rate\": 15.00, \"description\": \"Tasa especial\", \"is_default\": false}"
+						},
+						"url": "{{base_url}}/api/v1/tax-rates"
+					}
+				}
+			]
+		}
+	]
+}
