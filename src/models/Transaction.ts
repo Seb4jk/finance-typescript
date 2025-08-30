@@ -1,6 +1,6 @@
 import { ResultSetHeader } from 'mysql2';
 import { pool } from '../config/database';
-import { Transaction, TransactionFilters } from '../types/models';
+import { Transaction, TransactionFilters, PaginatedResponse } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TransactionModel {
@@ -69,8 +69,76 @@ export class TransactionModel {
     return transactions[0] || null;
   }
 
-  static async findAll(userId: string, filters?: TransactionFilters): Promise<Transaction[]> {
-    let query = `
+  static async findAll(userId: string, filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
+    // Build WHERE clause
+    let whereClause = 'WHERE t.user_id = ?';
+    const params: any[] = [userId];
+    
+    if (filters) {
+      if (filters.startDate) {
+        whereClause += ' AND t.transaction_date >= ?';
+        params.push(filters.startDate);
+      }
+      
+      if (filters.endDate) {
+        whereClause += ' AND t.transaction_date <= ?';
+        params.push(filters.endDate);
+      }
+      
+      if (filters.categoryId) {
+        whereClause += ' AND t.category_id = ?';
+        params.push(filters.categoryId);
+      }
+      
+      if (filters.vendorId) {
+        whereClause += ' AND t.vendor_id = ?';
+        params.push(filters.vendorId);
+      }
+      
+      if (filters.statusId) {
+        whereClause += ' AND t.status_id = ?';
+        params.push(filters.statusId);
+      }
+      
+      if (filters.documentTypeId) {
+        whereClause += ' AND t.document_type_id = ?';
+        params.push(filters.documentTypeId);
+      }
+      
+      if (filters.taxRateId) {
+        whereClause += ' AND t.tax_rate_id = ?';
+        params.push(filters.taxRateId);
+      }
+      
+      if (filters.companyId) {
+        whereClause += ' AND t.company_id = ?';
+        params.push(filters.companyId);
+      }
+      
+      if (filters.type) {
+        whereClause += ' AND t.type = ?';
+        params.push(filters.type);
+      }
+      
+      if (filters.documentNumber) {
+        whereClause += ' AND t.document_number LIKE ?';
+        params.push(`%${filters.documentNumber}%`);
+      }
+    }
+    
+    // Get total count
+    const countQuery = `SELECT COUNT(*) as total FROM transactions t ${whereClause}`;
+    const [countResult] = await pool.execute<any[]>(countQuery, params);
+    const total = countResult[0].total;
+    
+    // Pagination parameters - ensure integers
+    const page = Math.max(1, Math.floor(filters?.page || 1));
+    const limit = Math.max(1, Math.min(100, Math.floor(filters?.limit || 50)));
+    const offset = (page - 1) * limit;
+    const totalPages = Math.ceil(total / limit);
+    
+    // Main query with pagination - use template literals to avoid parameter issues
+    const baseQuery = `
       SELECT t.*, 
         c.name as category_name,
         v.name as vendor_name,
@@ -87,69 +155,24 @@ export class TransactionModel {
       LEFT JOIN document_types dt ON t.document_type_id = dt.id
       LEFT JOIN tax_rates tr ON t.tax_rate_id = tr.id
       LEFT JOIN companies comp ON t.company_id = comp.id
-      WHERE t.user_id = ?
+      ${whereClause}
+      ORDER BY t.transaction_date DESC
+      LIMIT ${limit} OFFSET ${offset}
     `;
     
-    const params: any[] = [userId];
+    const [transactions] = await pool.execute<Transaction[]>(baseQuery, params);
     
-    if (filters) {
-      if (filters.startDate) {
-        query += ' AND t.transaction_date >= ?';
-        params.push(filters.startDate);
+    return {
+      data: transactions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
       }
-      
-      if (filters.endDate) {
-        query += ' AND t.transaction_date <= ?';
-        params.push(filters.endDate);
-      }
-      
-      if (filters.categoryId) {
-        query += ' AND t.category_id = ?';
-        params.push(filters.categoryId);
-      }
-      
-      if (filters.vendorId) {
-        query += ' AND t.vendor_id = ?';
-        params.push(filters.vendorId);
-      }
-      
-      
-      if (filters.statusId) {
-        query += ' AND t.status_id = ?';
-        params.push(filters.statusId);
-      }
-      
-      
-      if (filters.documentTypeId) {
-        query += ' AND t.document_type_id = ?';
-        params.push(filters.documentTypeId);
-      }
-      
-      if (filters.taxRateId) {
-        query += ' AND t.tax_rate_id = ?';
-        params.push(filters.taxRateId);
-      }
-      
-      if (filters.companyId) {
-        query += ' AND t.company_id = ?';
-        params.push(filters.companyId);
-      }
-      
-      if (filters.type) {
-        query += ' AND t.type = ?';
-        params.push(filters.type);
-      }
-      
-      if (filters.documentNumber) {
-        query += ' AND t.document_number LIKE ?';
-        params.push(`%${filters.documentNumber}%`);
-      }
-    }
-    
-    query += ' ORDER BY t.transaction_date DESC';
-    
-    const [transactions] = await pool.execute<Transaction[]>(query, params);
-    return transactions;
+    };
   }
 
   static async update(id: string, userId: string, data: Partial<Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<boolean> {

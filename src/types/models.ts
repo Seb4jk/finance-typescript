@@ -133,4 +133,18 @@ export interface TransactionFilters {
   companyId?: number;
   type?: 'income' | 'expense';
   documentNumber?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }

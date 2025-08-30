@@ -137,8 +137,22 @@ export class TransactionController {
       }
       if (req.query.documentNumber) filters.documentNumber = req.query.documentNumber as string;
       
-      const transactions = await TransactionModel.findAll(userId, filters);
-      return res.json(transactions);
+      // Parse pagination parameters
+      if (req.query.page) {
+        const pageNum = Number(req.query.page);
+        if (!isNaN(pageNum) && pageNum > 0) {
+          filters.page = pageNum;
+        }
+      }
+      if (req.query.limit) {
+        const limitNum = Number(req.query.limit);
+        if (!isNaN(limitNum) && limitNum > 0) {
+          filters.limit = limitNum;
+        }
+      }
+      
+      const result = await TransactionModel.findAll(userId, filters);
+      return res.json(result);
     } catch (error) {
       console.error('Error getting transactions:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });

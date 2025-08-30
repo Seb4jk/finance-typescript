@@ -83,6 +83,22 @@
 					}
 				},
 				{
+					"name": "Get Transactions with Pagination",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/transactions?companyId={{company_id}}&page=1&limit=10"
+					}
+				},
+				{
+					"name": "Get Transactions with Filters and Pagination",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{base_url}}/api/v1/transactions?companyId={{company_id}}&startDate=2024-01-01&endDate=2024-12-31&type=expense&page=1&limit=20"
+					}
+				},
+				{
 					"name": "Create Transaction",
 					"request": {
 						"method": "POST",
