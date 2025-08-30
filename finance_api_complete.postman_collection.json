@@ -99,6 +99,16 @@
 					}
 				},
 				{
+					"name": "Get Transactions Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"url": "{{base_url}}/api/v1/transactions/summary?companyId={{company_id}}&startDate=2024-01-01&endDate=2024-12-31"
+					}
+				},
+				{
 					"name": "Create Transaction",
 					"request": {
 						"method": "POST",

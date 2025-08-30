@@ -57,6 +57,22 @@ El proyecto sigue una arquitectura modular con separación clara de responsabili
 - `PUT /api/v1/transactions/:id` - Actualizar transacción
 - `DELETE /api/v1/transactions/:id` - Eliminar transacción
 
+### Resumen de Transacciones
+
+- `GET /api/v1/transactions/summary` - Obtener resumen global de transacciones (ingresos, egresos y balance neto).
+  - Filtros opcionales por query string:
+    - `startDate=YYYY-MM-DD` (fecha inicial)
+    - `endDate=YYYY-MM-DD` (fecha final)
+    - `companyId=ID` (ID de la compañía)
+  - Respuesta:
+    ```json
+    {
+      "totalIncome": 10000,
+      "totalExpense": 5000,
+      "netBalance": 5000
+    }
+    ```
+
 ## Autenticación
 
 Todos los endpoints requieren autenticación mediante JWT. El token debe ser enviado en el encabezado `Authorization` como `Bearer {token}`.

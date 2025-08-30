@@ -316,4 +316,23 @@ export class TransactionController {
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
+
+  async getSummary(req: Request, res: Response) {
+    try {
+      const userId = (req.user as TokenPayload)?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'No autorizado' });
+      }
+      const { startDate, endDate, companyId } = req.query;
+      const filters: any = {};
+      if (startDate) filters.startDate = startDate as string;
+      if (endDate) filters.endDate = endDate as string;
+      if (companyId) filters.companyId = Number(companyId);
+      const summary = await TransactionModel.summary(userId, filters);
+      return res.json(summary);
+    } catch (error) {
+      console.error('Error getting transaction summary:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
 }
