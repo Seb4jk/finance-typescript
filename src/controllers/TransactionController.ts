@@ -22,13 +22,14 @@ export class TransactionController {
         description, 
         amount_net, 
         tax_amount, 
+        tax_amount_ext,
         tax_rate_id,
         amount_total, 
         category_id, 
         vendor_id, 
         status_id, 
         company_id,
-        type 
+        type
       } = req.body;
       
       if (!document_number || !document_type_id || !transaction_date || !amount_net || !amount_total || !category_id || !vendor_id || 
@@ -95,6 +96,7 @@ export class TransactionController {
         transaction_date: new Date(transaction_date),
         amount_net: Number(amount_net),
         tax_amount: Number(tax_amount),
+        tax_amount_ext: tax_amount_ext !== undefined ? Number(tax_amount_ext) : 0,
         tax_rate_id: tax_rate_id ? Number(tax_rate_id) : undefined,
         amount_total: Number(amount_total),
         category_id: Number(category_id),

@@ -21,7 +21,7 @@ export class TransactionModel {
         data.description,
         data.amount_net,
         data.tax_amount,
-        data.tax_amount_ext,
+        data.tax_amount_ext ?? null,
         data.tax_rate_id,
         data.amount_total,
         data.category_id,
