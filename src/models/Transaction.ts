@@ -9,10 +9,10 @@ export class TransactionModel {
     await pool.execute<ResultSetHeader>(
       `INSERT INTO transactions (
         id, document_number, document_type_id, transaction_date, description, 
-        amount_net, tax_amount, tax_rate_id, amount_total, 
+        amount_net, tax_amount, tax_amount_ext, tax_rate_id, amount_total, 
         category_id, vendor_id, 
         status_id, user_id, company_id, type
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         Number(data.document_number),
@@ -21,6 +21,7 @@ export class TransactionModel {
         data.description,
         data.amount_net,
         data.tax_amount,
+        data.tax_amount_ext,
         data.tax_rate_id,
         data.amount_total,
         data.category_id,
@@ -45,7 +46,8 @@ export class TransactionModel {
         dt.code as document_type_code,
         tr.name as tax_rate_name,
         tr.rate as tax_rate,
-        comp.name as company_name
+        comp.name as company_name,
+        t.tax_amount_ext
        FROM transactions t
        INNER JOIN categories c ON t.category_id = c.id
        LEFT JOIN vendors v ON t.vendor_id = v.id
@@ -158,7 +160,8 @@ export class TransactionModel {
         ) as paymentsCount,
         (
           t.amount_total - COALESCE((SELECT SUM(tp.amount) FROM transaction_payments tp WHERE tp.transaction_id = t.id), 0)
-        ) as pendingAmount
+        ) as pendingAmount,
+        t.tax_amount_ext
       FROM transactions t
       INNER JOIN categories c ON t.category_id = c.id
       LEFT JOIN vendors v ON t.vendor_id = v.id

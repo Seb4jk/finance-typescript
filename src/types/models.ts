@@ -110,13 +110,14 @@ export interface Transaction extends RowDataPacket {
   description: string;
   amount_net: number;
   tax_amount: number;
-  tax_rate_id?: number;
+  tax_amount_ext?: number;
+  tax_rate_id: number;
   amount_total: number;
   category_id: number;
   vendor_id: number;
   status_id: number;
   user_id: string;
-  company_id?: number;
+  company_id: number;
   type: 'income' | 'expense';
   created_at: Date;
   updated_at: Date;
