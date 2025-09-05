@@ -137,17 +137,28 @@ export class TransactionModel {
     const offset = (page - 1) * limit;
     const totalPages = Math.ceil(total / limit);
     
-    // Main query with pagination - use template literals to avoid parameter issues
+    // Main query con subconsultas para pagos
     const baseQuery = `
       SELECT t.*, 
         c.name as category_name,
         v.name as vendor_name,
         s.name as status_name,
+        CASE 
+          WHEN LOWER(s.name) IN ('pagado', 'paid') THEN 'green'
+          WHEN LOWER(s.name) IN ('pendiente', 'pending') THEN 'yellow'
+          ELSE NULL
+        END as statusColor,
         dt.name as document_type_name,
         dt.code as document_type_code,
         tr.name as tax_rate_name,
         tr.rate as tax_rate,
-        comp.name as company_name 
+        comp.name as company_name,
+        (
+          SELECT COUNT(*) FROM transaction_payments tp WHERE tp.transaction_id = t.id
+        ) as paymentsCount,
+        (
+          t.amount_total - COALESCE((SELECT SUM(tp.amount) FROM transaction_payments tp WHERE tp.transaction_id = t.id), 0)
+        ) as pendingAmount
       FROM transactions t
       INNER JOIN categories c ON t.category_id = c.id
       LEFT JOIN vendors v ON t.vendor_id = v.id

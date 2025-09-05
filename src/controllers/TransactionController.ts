@@ -310,7 +310,7 @@ export class TransactionController {
         return res.status(400).json({ message: 'Error al eliminar la transacción' });
       }
 
-      return res.status(204).send();
+      return res.json({ message: 'Transacción eliminada correctamente' });
     } catch (error) {
       console.error('Error deleting transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });

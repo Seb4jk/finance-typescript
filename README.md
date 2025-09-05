@@ -53,27 +53,8 @@ El proyecto sigue una arquitectura modular con separación clara de responsabili
 
 - `POST /api/v1/transactions` - Crear transacción
 - `GET /api/v1/transactions` - Listar transacciones (filtros opcionales: ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&categoryId=1&type=income|expense)
-- `GET /api/v1/transactions/:id` - Obtener detalle de una transacción
-- `PUT /api/v1/transactions/:id` - Actualizar transacción
-- `DELETE /api/v1/transactions/:id` - Eliminar transacción
-
-### Resumen de Transacciones
-
-- `GET /api/v1/transactions/summary` - Obtener resumen global de transacciones (ingresos, egresos y balance neto).
-  - Filtros opcionales por query string:
-    - `startDate=YYYY-MM-DD` (fecha inicial)
-    - `endDate=YYYY-MM-DD` (fecha final)
-    - `companyId=ID` (ID de la compañía)
-  - Respuesta:
-    ```json
-    {
-      "totalIncome": 10000,
-      "totalExpense": 5000,
-      "netBalance": 5000
-    }
-    ```
-
-## Autenticación
-
-Todos los endpoints requieren autenticación mediante JWT. El token debe ser enviado en el encabezado `Authorization` como `Bearer {token}`.
-# finance-typescript
+  - Ahora cada transacción incluye:
+    - `paymentsCount`: cantidad de pagos registrados
+    - `pendingAmount`: saldo pendiente (amount_total - suma de pagos)
+    - `statusColor`: color asociado al estado, será 'green' si el estado es 'Pagado' o 'Paid'
+- `GET /api/v1/transactions/:id`
