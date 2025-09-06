@@ -221,7 +221,7 @@ export class TransactionModel {
     return result.affectedRows > 0;
   }
 
-  static async summary(userId: string, filters?: { startDate?: string; endDate?: string; companyId?: number }): Promise<{ totalIncome: number; totalExpense: number; netBalance: number }> {
+  static async summary(userId: string, filters?: { startDate?: string; endDate?: string; companyId?: number }): Promise<{ totalIncome: number; totalExpense: number; netBalance: number; otrosImpuestos: number }> {
     let whereClause = 'WHERE t.user_id = ?';
     const params: any[] = [userId];
     if (filters?.startDate) {
@@ -242,10 +242,14 @@ export class TransactionModel {
     const [expenseRows] = await pool.execute<any[]>(`SELECT SUM(amount_total) as total FROM transactions t ${whereClause} AND t.type = 'expense'`, params);
     const totalIncome = Number(incomeRows[0].total) || 0;
     const totalExpense = Number(expenseRows[0].total) || 0;
+    // Sumar otros impuestos (tax_amount_ext)
+    const [otrosImpuestosRows] = await pool.execute<any[]>(`SELECT SUM(tax_amount_ext) as total FROM transactions t ${whereClause}`, params);
+    const otrosImpuestos = Number(otrosImpuestosRows[0].total) || 0;
     return {
       totalIncome,
       totalExpense,
-      netBalance: totalIncome - totalExpense
+      netBalance: totalIncome - totalExpense,
+      otrosImpuestos
     };
   }
 }
