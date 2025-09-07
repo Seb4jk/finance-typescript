@@ -284,7 +284,10 @@ export class TransactionController {
       }
 
       const updatedTransaction = await TransactionModel.findById(id, userId);
-      return res.json(updatedTransaction);
+      return res.json({
+        message: 'Transacción actualizada correctamente',
+        transaction: updatedTransaction
+      });
     } catch (error) {
       console.error('Error updating transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
