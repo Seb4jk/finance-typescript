@@ -34,7 +34,10 @@ export class CategoryController {
 
       const category = await CategoryModel.findById(categoryId);
       
-      return res.status(201).json(category);
+      return res.status(201).json({
+        message: 'Categoría creada correctamente',
+        category
+      });
     } catch (error: any) {
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ message: 'Ya existe una categoría con ese nombre para este tipo' });
@@ -53,9 +56,13 @@ export class CategoryController {
       }
 
       const type = req.query.type as 'income' | 'expense' | undefined;
-      
-      const categories = await CategoryModel.findAll(type);
-      return res.json(categories);
+      let page = Number(req.query.page);
+      let limit = Number(req.query.limit);
+      page = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+      limit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 50;
+
+      const result = await CategoryModel.findAll(type, page, limit);
+      return res.json(result);
     } catch (error) {
       console.error('Error getting categories:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
@@ -94,7 +101,10 @@ export class CategoryController {
       }
 
       const updatedCategory = await CategoryModel.findById(Number(id));
-      return res.json(updatedCategory);
+      return res.json({
+        message: 'Categoría actualizada correctamente',
+        category: updatedCategory
+      });
     } catch (error: any) {
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ message: 'Ya existe una categoría con ese nombre para este tipo' });
@@ -127,12 +137,30 @@ export class CategoryController {
       const deleted = await CategoryModel.delete(Number(id));
       
       if (!deleted) {
-        return res.status(400).json({ message: 'Error al eliminar la categoría' });
+        return res.status(400).json({ message: 'Error al eliminar la categoría predeterminada' });
       }
 
       return res.status(204).send();
     } catch (error) {
       console.error('Error deleting category:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
+  async getCategoryById(req: Request, res: Response) {
+    try {
+      const userId = (req.user as TokenPayload)?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'No autorizado' });
+      }
+      const { id } = req.params;
+      const category = await CategoryModel.findById(Number(id));
+      if (!category) {
+        return res.status(404).json({ message: 'Categoría no encontrada' });
+      }
+      return res.json(category);
+    } catch (error) {
+      console.error('Error getting category:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

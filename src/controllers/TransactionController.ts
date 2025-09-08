@@ -6,6 +6,8 @@ import { TaxRateModel } from '../models/TaxRate';
 import { CompanyModel } from '../models/Company';
 import { TokenPayload } from '../types/auth';
 import { TransactionFilters } from '../types/models';
+import { TransactionPaymentModel } from '../models/TransactionPayment';
+import { StatusModel } from '../models/Status';
 
 export class TransactionController {
   async createTransaction(req: Request, res: Response) {
@@ -191,46 +193,65 @@ export class TransactionController {
       }
 
       const { id } = req.params;
-      const { 
-        document_number, 
+      const {
+        document_number,
         document_type_id,
-        transaction_date, 
-        description, 
-        amount_net, 
-        tax_amount, 
+        transaction_date,
+        description,
+        amount_net,
+        tax_amount,
+        tax_amount_ext,
         tax_rate_id,
-        amount_total, 
-        category_id, 
-        vendor_id, 
-        payment_type_id, 
-        status_id, 
+        amount_total,
+        category_id,
+        vendor_id,
+        payment_type_id,
+        status_id,
         company_id,
-        type 
+        type
       } = req.body;
-      
+
       // Check if transaction exists and belongs to user
       const existingTransaction = await TransactionModel.findById(id, userId);
       if (!existingTransaction) {
         return res.status(404).json({ message: 'Transacción no encontrada' });
       }
 
+      // Obtener el total pagado
+      const totalPagado = await TransactionPaymentModel.getTotalPaidAmount(id);
+
+      // Validar que el nuevo amount_total no sea menor al pagado
+      if (amount_total !== undefined && Number(amount_total) < totalPagado) {
+        return res.status(400).json({
+          message: `El monto total (${amount_total}) no puede ser menor al total pagado (${totalPagado})`
+        });
+      }
+
+      // Si el nuevo amount_total es mayor al pagado, poner estado en 'Pendiente'
+      let newStatusId = status_id;
+      if (amount_total !== undefined && Number(amount_total) > totalPagado) {
+        // Buscar el id de estado 'Pendiente'
+        const allStatuses = await StatusModel.findAll();
+        const pendiente = allStatuses.find(s => s.name.toLowerCase() === 'pendiente');
+        if (pendiente) {
+          newStatusId = pendiente.id;
+        }
+      }
+
       // If changing category or type, validate category
       if (category_id || type) {
         const newType = type || existingTransaction.type;
         const newCategoryId = category_id || existingTransaction.category_id;
-        
         const category = await CategoryModel.findById(newCategoryId);
         if (!category) {
           return res.status(404).json({ message: 'Categoría no encontrada' });
         }
-        
         if (category.type !== newType) {
-          return res.status(400).json({ 
-            message: `La categoría seleccionada no es válida para transacciones de tipo ${newType}` 
+          return res.status(400).json({
+            message: `La categoría seleccionada no es válida para transacciones de tipo ${newType}`
           });
         }
       }
-      
       // Validate document type if changing
       if (document_type_id) {
         const documentType = await DocumentTypeModel.findById(document_type_id);
@@ -238,7 +259,6 @@ export class TransactionController {
           return res.status(404).json({ message: 'Tipo de documento no encontrado' });
         }
       }
-      
       // Validate tax rate if changing
       if (tax_rate_id) {
         const taxRate = await TaxRateModel.findById(tax_rate_id);
@@ -246,14 +266,12 @@ export class TransactionController {
           return res.status(404).json({ message: 'Tasa de impuesto no encontrada' });
         }
       }
-      
       // Validate company if changing
       if (company_id) {
         const company = await CompanyModel.findById(company_id);
         if (!company) {
           return res.status(404).json({ message: 'Compañía no encontrada' });
         }
-        
         // Verify user has access to this company
         const hasAccess = await CompanyModel.isUserAssigned(company_id, userId);
         if (!hasAccess) {
@@ -268,17 +286,18 @@ export class TransactionController {
       if (transaction_date !== undefined) updateData.transaction_date = new Date(transaction_date);
       if (amount_net !== undefined) updateData.amount_net = Number(amount_net);
       if (tax_amount !== undefined) updateData.tax_amount = Number(tax_amount);
+      if (tax_amount_ext !== undefined) updateData.tax_amount_ext = Number(tax_amount_ext);
       if (tax_rate_id !== undefined) updateData.tax_rate_id = Number(tax_rate_id);
       if (amount_total !== undefined) updateData.amount_total = Number(amount_total);
       if (category_id !== undefined) updateData.category_id = Number(category_id);
       if (vendor_id !== undefined) updateData.vendor_id = Number(vendor_id);
       if (payment_type_id !== undefined) updateData.payment_type_id = Number(payment_type_id);
-      if (status_id !== undefined) updateData.status_id = Number(status_id);
       if (company_id !== undefined) updateData.company_id = Number(company_id);
       if (type !== undefined) updateData.type = type;
+      // status_id sólo si no se va a forzar a pendiente
+      if (newStatusId !== undefined) updateData.status_id = Number(newStatusId);
 
       const updated = await TransactionModel.update(id, userId, updateData);
-      
       if (!updated) {
         return res.status(400).json({ message: 'Error al actualizar la transacción' });
       }
