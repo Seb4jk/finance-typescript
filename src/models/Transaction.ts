@@ -252,4 +252,30 @@ export class TransactionModel {
       otrosImpuestos
     };
   }
+
+  static async getCategoryMonthlyConsolidated({ year, type, companyId }: { year: number, type?: 'income' | 'expense', companyId?: number }): Promise<any[]> {
+    let where = 'WHERE YEAR(t.transaction_date) = ?';
+    const params: any[] = [year];
+    if (type) {
+      where += ' AND t.type = ?';
+      params.push(type);
+    }
+    if (companyId) {
+      where += ' AND t.company_id = ?';
+      params.push(companyId);
+    }
+    const [rows] = await pool.execute<any[]>(`
+      SELECT 
+        c.id as category_id,
+        c.name as category_name,
+        MONTH(t.transaction_date) as month,
+        SUM(t.amount_total) as total
+      FROM transactions t
+      INNER JOIN categories c ON t.category_id = c.id
+      ${where}
+      GROUP BY c.id, c.name, MONTH(t.transaction_date)
+      ORDER BY c.name, month
+    `, params);
+    return rows;
+  }
 }

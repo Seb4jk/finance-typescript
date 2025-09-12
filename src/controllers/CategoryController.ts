@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { CategoryModel } from '../models/Category';
 import { TokenPayload } from '../types/auth';
+import { TransactionModel } from '../models/Transaction';
 
 export class CategoryController {
   async createCategory(req: Request, res: Response) {
@@ -161,6 +162,19 @@ export class CategoryController {
       return res.json(category);
     } catch (error) {
       console.error('Error getting category:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
+  async getCategoryMonthlyConsolidated(req: Request, res: Response) {
+    try {
+      const year = req.query.year ? Number(req.query.year) : new Date().getFullYear();
+      const type = req.query.type as 'income' | 'expense' | undefined;
+      const companyId = req.query.companyId ? Number(req.query.companyId) : undefined;
+      const data = await TransactionModel.getCategoryMonthlyConsolidated({ year, type, companyId });
+      return res.json({ year, type, companyId, data });
+    } catch (error) {
+      console.error('Error getting category monthly consolidated:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

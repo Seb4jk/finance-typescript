@@ -13,5 +13,6 @@ router.get('/', (req, res) => void categoryController.getCategories(req, res));
 router.get('/:id', (req, res) => void categoryController.getCategoryById(req, res));
 router.put('/:id', (req, res) => void categoryController.updateCategory(req, res));
 router.delete('/:id', (req, res) => void categoryController.deleteCategory(req, res));
+router.get('/consolidated/monthly', (req, res) => void categoryController.getCategoryMonthlyConsolidated(req, res));
 
 export default router;
