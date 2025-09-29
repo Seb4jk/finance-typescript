@@ -43,7 +43,6 @@ export class CategoryController {
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ message: 'Ya existe una categoría con ese nombre para este tipo' });
       }
-      console.error('Error creating category:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -65,7 +64,6 @@ export class CategoryController {
       const result = await CategoryModel.findAll(type, page, limit);
       return res.json(result);
     } catch (error) {
-      console.error('Error getting categories:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -110,7 +108,6 @@ export class CategoryController {
       if (error.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ message: 'Ya existe una categoría con ese nombre para este tipo' });
       }
-      console.error('Error updating category:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -143,7 +140,6 @@ export class CategoryController {
 
       return res.status(204).send();
     } catch (error) {
-      console.error('Error deleting category:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -161,7 +157,6 @@ export class CategoryController {
       }
       return res.json(category);
     } catch (error) {
-      console.error('Error getting category:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -174,7 +169,6 @@ export class CategoryController {
       const data = await TransactionModel.getCategoryMonthlyConsolidated({ year, type, companyId });
       return res.json({ year, type, companyId, data });
     } catch (error) {
-      console.error('Error getting category monthly consolidated:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

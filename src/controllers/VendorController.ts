@@ -6,61 +6,54 @@ import { validateAndFormatRut } from '../utils/rutValidator';
 export class VendorController {
   async createVendor(req: Request, res: Response) {
     try {
-      // Verificar autenticación
+      // Obtener user_id del token, no del body
       const userId = (req.user as TokenPayload)?.id;
       if (!userId) {
         return res.status(401).json({ message: 'No autorizado' });
       }
 
-      const { name, tax_id, contact_name, email, phone, address, city, country, industry, notes } = req.body;
+      const { name, tax_id, business_activity, email, phone, address, region_id, commune_id, notes } = req.body;
       
       if (!name) {
         return res.status(400).json({ message: 'El nombre del proveedor es requerido' });
       }
+      if (!region_id || !commune_id) {
+        return res.status(400).json({ message: 'Región y comuna son obligatorias' });
+      }
 
-      // Validar RUT chileno (obligatorio)
       if (!tax_id) {
         return res.status(400).json({ message: 'El RUT del proveedor es obligatorio' });
       }
-      
-      // Validar y formatear el RUT
       const formattedTaxId = validateAndFormatRut(tax_id);
-      
       if (!formattedTaxId) {
         return res.status(400).json({ message: 'El RUT proporcionado no es válido' });
       }
-      
-      // Verificar si ya existe un proveedor con este RUT
       const existingVendor = await VendorModel.findByTaxId(formattedTaxId);
       if (existingVendor) {
         return res.status(409).json({ 
           message: 'Ya existe un proveedor con este RUT', 
-          existingVendor 
+          data: existingVendor 
         });
       }
-
       const vendorId = await VendorModel.create({
         name,
         tax_id: formattedTaxId,
-        contact_name,
+        business_activity,
         email,
         phone,
         address,
-        city,
-        country,
-        industry,
+        region_id,
+        commune_id,
         notes,
         user_id: userId
       });
-
       const vendor = await VendorModel.findById(vendorId);
-      
-      return res.status(201).json(vendor);
+      return res.status(201).json({
+        success: true,
+        message: 'Proveedor creado exitosamente',
+        data: vendor
+      });
     } catch (error: any) {
-      console.error('Error creating vendor:', error);
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({ message: 'Ya existe un proveedor con este RUT' });
-      }
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -73,18 +66,21 @@ export class VendorController {
         return res.status(401).json({ message: 'No autorizado' });
       }
 
-      const { name, industry, country, tax_id } = req.query;
+      const { name, region_id, commune_id, tax_id } = req.query;
       
       const vendors = await VendorModel.findAll(userId, {
         name: name as string,
-        industry: industry as string,
-        country: country as string,
+        region_id: region_id ? Number(region_id) : undefined,
+        commune_id: commune_id ? Number(commune_id) : undefined,
         tax_id: tax_id as string
       });
       
-      return res.json(vendors);
+      return res.json({
+        success: true,
+        message: 'Proveedores obtenidos exitosamente',
+        data: vendors
+      });
     } catch (error) {
-      console.error('Error getting vendors:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -109,9 +105,12 @@ export class VendorController {
         return res.status(403).json({ message: 'No tienes permiso para ver este proveedor' });
       }
       
-      return res.json(vendor);
+      return res.json({
+        success: true,
+        message: 'Proveedor obtenido exitosamente',
+        data: vendor
+      });
     } catch (error) {
-      console.error('Error getting vendor:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -125,7 +124,7 @@ export class VendorController {
       }
 
       const { id } = req.params;
-      const { name, tax_id, contact_name, email, phone, address, city, country, industry, notes } = req.body;
+      const { name, tax_id, business_activity, email, phone, address, region_id, commune_id, notes } = req.body;
       
       if (!name) {
         return res.status(400).json({ message: 'El nombre del proveedor es requerido' });
@@ -153,13 +152,12 @@ export class VendorController {
       const updated = await VendorModel.update(Number(id), userId, {
         name,
         tax_id: formattedTaxId,
-        contact_name,
+        business_activity,
         email,
         phone,
         address,
-        city,
-        country,
-        industry,
+        region_id,
+        commune_id,
         notes
       });
       
@@ -168,9 +166,12 @@ export class VendorController {
       }
 
       const updatedVendor = await VendorModel.findById(Number(id));
-      return res.json(updatedVendor);
+      return res.json({
+        success: true,
+        message: 'Proveedor actualizado exitosamente',
+        data: updatedVendor
+      });
     } catch (error) {
-      console.error('Error updating vendor:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -201,9 +202,11 @@ export class VendorController {
         return res.status(400).json({ message: 'Error al eliminar el proveedor' });
       }
 
-      return res.status(204).send();
+      return res.status(204).json({
+        success: true,
+        message: 'Proveedor eliminado exitosamente'
+      });
     } catch (error) {
-      console.error('Error deleting vendor:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

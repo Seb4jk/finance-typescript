@@ -61,16 +61,13 @@ export interface PaymentType extends RowDataPacket {
 export interface Client extends RowDataPacket {
   id: number;
   name: string;
-  tax_id?: string;
-  contact_name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  industry?: string;
+  tax_id: string;
+  email: string;
+  phone: string;
+  address: string;
+  region_id: number;
+  commune_id: number;
   notes?: string;
-  user_id: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -78,14 +75,13 @@ export interface Client extends RowDataPacket {
 export interface Vendor extends RowDataPacket {
   id: number;
   name: string;
-  tax_id?: string;
-  contact_name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  industry?: string;
+  tax_id: string;
+  business_activity: string;
+  email: string;
+  phone: string;
+  address: string;
+  region_id: number;
+  commune_id: number;
   notes?: string;
   user_id: string;
   created_at: Date;
@@ -148,4 +144,15 @@ export interface PaginatedResponse<T> {
     hasNext: boolean;
     hasPrev: boolean;
   };
+}
+
+export interface Region extends RowDataPacket {
+  id: number;
+  name: string;
+}
+
+export interface Commune extends RowDataPacket {
+  id: number;
+  name: string;
+  region_id: number;
 }

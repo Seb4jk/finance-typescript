@@ -15,7 +15,6 @@ export class PaymentTypeController {
       
       return res.json(paymentTypes);
     } catch (error) {
-      console.error('Error getting payment types:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -38,7 +37,6 @@ export class PaymentTypeController {
       
       return res.json(paymentType);
     } catch (error) {
-      console.error('Error getting payment type:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

@@ -85,7 +85,6 @@ export const validateRut = (rut: string): boolean => {
     
     return dvCalculado === dv;
   } catch (error) {
-    console.error('Error en validateRut:', error);
     return false;
   }
 };
@@ -133,7 +132,6 @@ export const formatRut = (rut: string): string => {
     // Retorna el RUT formateado
     return `${formattedBody}-${dv}`;
   } catch (error) {
-    console.error('Error en formatRut:', error);
     return '';
   }
 };
@@ -154,7 +152,6 @@ export const validateAndFormatRut = (rut: string): string | null => {
     const formatted = formatRut(rut);
     return formatted || null;
   } catch (error) {
-    console.error('Error en validateAndFormatRut:', error);
     return null;
   }
 };

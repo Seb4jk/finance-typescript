@@ -25,6 +25,14 @@ export class TaxRateModel {
     return taxRates[0] || null;
   }
 
+  static async findByName(name: string): Promise<TaxRate | null> {
+    const [taxRates] = await pool.execute<TaxRate[]>(
+      'SELECT * FROM tax_rates WHERE name = ?',
+      [name]
+    );
+    return taxRates[0] || null;
+  }
+
   static async create(taxRate: Omit<TaxRate, 'id'>): Promise<number> {
     // Si es_default es true, primero quitar el default de otros
     if (taxRate.is_default) {

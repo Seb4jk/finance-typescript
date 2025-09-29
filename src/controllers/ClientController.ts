@@ -12,25 +12,21 @@ export class ClientController {
         return res.status(401).json({ message: 'No autorizado' });
       }
 
-      const { name, tax_id, contact_name, email, phone, address, city, country, industry, notes } = req.body;
+      const { name, tax_id, email, phone, address, region_id, commune_id, notes } = req.body;
       
       if (!name) {
         return res.status(400).json({ message: 'El nombre del cliente es requerido' });
       }
-
-      // Validar RUT chileno (obligatorio)
+      if (!region_id || !commune_id) {
+        return res.status(400).json({ message: 'Región y comuna son obligatorias' });
+      }
       if (!tax_id) {
         return res.status(400).json({ message: 'El RUT del cliente es obligatorio' });
       }
-      
-      // Validar y formatear el RUT
       const formattedTaxId = validateAndFormatRut(tax_id);
-      
       if (!formattedTaxId) {
         return res.status(400).json({ message: 'El RUT proporcionado no es válido' });
       }
-      
-      // Verificar si ya existe un cliente con este RUT
       const existingClient = await ClientModel.findByTaxId(formattedTaxId);
       if (existingClient) {
         return res.status(409).json({ 
@@ -38,29 +34,19 @@ export class ClientController {
           existingClient 
         });
       }
-
       const clientId = await ClientModel.create({
         name,
         tax_id: formattedTaxId,
-        contact_name,
         email,
         phone,
         address,
-        city,
-        country,
-        industry,
-        notes,
-        user_id: userId
+        region_id,
+        commune_id,
+        notes
       });
-
       const client = await ClientModel.findById(clientId);
-      
       return res.status(201).json(client);
     } catch (error: any) {
-      console.error('Error creating client:', error);
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({ message: 'Ya existe un cliente con este RUT' });
-      }
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -73,18 +59,17 @@ export class ClientController {
         return res.status(401).json({ message: 'No autorizado' });
       }
 
-      const { name, industry, country, tax_id } = req.query;
+      const { name, region_id, commune_id, tax_id } = req.query;
       
       const clients = await ClientModel.findAll(userId, {
         name: name as string,
-        industry: industry as string,
-        country: country as string,
+        region_id: region_id ? Number(region_id) : undefined,
+        commune_id: commune_id ? Number(commune_id) : undefined,
         tax_id: tax_id as string
       });
       
       return res.json(clients);
     } catch (error) {
-      console.error('Error getting clients:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -111,7 +96,6 @@ export class ClientController {
       
       return res.json(client);
     } catch (error) {
-      console.error('Error getting client:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -125,7 +109,7 @@ export class ClientController {
       }
 
       const { id } = req.params;
-      const { name, tax_id, contact_name, email, phone, address, city, country, industry, notes } = req.body;
+      const { name, tax_id, email, phone, address, region_id, commune_id, notes } = req.body;
       
       if (!name) {
         return res.status(400).json({ message: 'El nombre del cliente es requerido' });
@@ -153,16 +137,14 @@ export class ClientController {
         return res.status(403).json({ message: 'No tienes permiso para editar este cliente' });
       }
 
-      const updated = await ClientModel.update(Number(id), userId, {
+      const updated = await ClientModel.update(Number(id), {
         name,
         tax_id: formattedTaxId,
-        contact_name,
         email,
         phone,
         address,
-        city,
-        country,
-        industry,
+        region_id,
+        commune_id,
         notes
       });
       
@@ -173,7 +155,6 @@ export class ClientController {
       const updatedClient = await ClientModel.findById(Number(id));
       return res.json(updatedClient);
     } catch (error) {
-      console.error('Error updating client:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -206,7 +187,6 @@ export class ClientController {
 
       return res.status(204).send();
     } catch (error) {
-      console.error('Error deleting client:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

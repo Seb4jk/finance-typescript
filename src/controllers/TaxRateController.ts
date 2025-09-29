@@ -18,7 +18,6 @@ export class TaxRateController {
         data: taxRates
       });
     } catch (error) {
-      console.error('Error al obtener las tasas de impuestos:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener las tasas de impuestos'
@@ -60,7 +59,6 @@ export class TaxRateController {
         data: taxRate
       });
     } catch (error) {
-      console.error('Error al obtener la tasa de impuesto:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener la tasa de impuesto'
@@ -92,7 +90,6 @@ export class TaxRateController {
         data: taxRate
       });
     } catch (error) {
-      console.error('Error al obtener la tasa de impuesto predeterminada:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener la tasa de impuesto predeterminada'
@@ -127,6 +124,17 @@ export class TaxRateController {
         return;
       }
       
+      // Validar duplicado por nombre
+      const existingTaxRate = await TaxRateModel.findByName(name);
+      if (existingTaxRate) {
+        res.status(409).json({
+          success: false,
+          message: 'Ya existe una tasa de impuesto con ese nombre',
+          data: existingTaxRate
+        });
+        return;
+      }
+      
       const taxRateId = await TaxRateModel.create({
         name,
         rate: Number(rate),
@@ -136,10 +144,10 @@ export class TaxRateController {
       
       res.status(201).json({
         success: true,
+        message: 'Tasa de impuesto creada exitosamente',
         data: { id: taxRateId }
       });
     } catch (error) {
-      console.error('Error al crear la tasa de impuesto:', error);
       res.status(500).json({
         success: false,
         message: 'Error al crear la tasa de impuesto'
@@ -205,7 +213,6 @@ export class TaxRateController {
         message: 'Tasa de impuesto actualizada exitosamente'
       });
     } catch (error) {
-      console.error('Error al actualizar la tasa de impuesto:', error);
       res.status(500).json({
         success: false,
         message: 'Error al actualizar la tasa de impuesto'
@@ -266,7 +273,6 @@ export class TaxRateController {
         message: 'Tasa de impuesto eliminada exitosamente'
       });
     } catch (error) {
-      console.error('Error al eliminar la tasa de impuesto:', error);
       res.status(500).json({
         success: false,
         message: 'Error al eliminar la tasa de impuesto'

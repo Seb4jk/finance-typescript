@@ -9,6 +9,8 @@ import documentTypeRoutes from './documentType.routes';
 import taxRateRoutes from './taxRate.routes';
 import companyRoutes from './company.routes';
 import transactionPaymentRoutes from './transactionPayment.routes';
+import regionRoutes from './region.routes';
+import communeRoutes from './commune.routes';
 
 const router = Router();
 
@@ -23,5 +25,7 @@ router.use('/api/v1/document-types', documentTypeRoutes);
 router.use('/api/v1/tax-rates', taxRateRoutes);
 router.use('/api/v1/companies', companyRoutes);
 router.use('/api/v1', transactionPaymentRoutes);
+router.use('/api/v1/regions', regionRoutes);
+router.use('/api/v1/communes', communeRoutes);
 
 export default router;

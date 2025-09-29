@@ -15,7 +15,6 @@ export class StatusController {
       
       return res.json(statuses);
     } catch (error) {
-      console.error('Error getting statuses:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -38,7 +37,6 @@ export class StatusController {
       
       return res.json(status);
     } catch (error) {
-      console.error('Error getting status:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

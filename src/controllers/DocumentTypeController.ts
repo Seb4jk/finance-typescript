@@ -18,7 +18,6 @@ export class DocumentTypeController {
         data: documentTypes
       });
     } catch (error) {
-      console.error('Error al obtener los tipos de documento:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener los tipos de documento'
@@ -60,7 +59,6 @@ export class DocumentTypeController {
         data: documentType
       });
     } catch (error) {
-      console.error('Error al obtener el tipo de documento:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener el tipo de documento'
@@ -109,7 +107,6 @@ export class DocumentTypeController {
         data: { id: documentTypeId }
       });
     } catch (error) {
-      console.error('Error al crear el tipo de documento:', error);
       res.status(500).json({
         success: false,
         message: 'Error al crear el tipo de documento'
@@ -179,7 +176,6 @@ export class DocumentTypeController {
         message: 'Tipo de documento actualizado exitosamente'
       });
     } catch (error) {
-      console.error('Error al actualizar el tipo de documento:', error);
       res.status(500).json({
         success: false,
         message: 'Error al actualizar el tipo de documento'
@@ -231,7 +227,6 @@ export class DocumentTypeController {
         message: 'Tipo de documento eliminado exitosamente'
       });
     } catch (error) {
-      console.error('Error al eliminar el tipo de documento:', error);
       res.status(500).json({
         success: false,
         message: 'Error al eliminar el tipo de documento'

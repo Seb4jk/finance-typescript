@@ -113,7 +113,6 @@ export class TransactionController {
       
       return res.status(201).json(transaction);
     } catch (error) {
-      console.error('Error creating transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -158,7 +157,6 @@ export class TransactionController {
       const result = await TransactionModel.findAll(userId, filters);
       return res.json(result);
     } catch (error) {
-      console.error('Error getting transactions:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -180,7 +178,6 @@ export class TransactionController {
 
       return res.json(transaction);
     } catch (error) {
-      console.error('Error getting transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -308,7 +305,6 @@ export class TransactionController {
         transaction: updatedTransaction
       });
     } catch (error) {
-      console.error('Error updating transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -336,7 +332,6 @@ export class TransactionController {
 
       return res.json({ message: 'Transacción eliminada correctamente' });
     } catch (error) {
-      console.error('Error deleting transaction:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
@@ -355,7 +350,6 @@ export class TransactionController {
       const summary = await TransactionModel.summary(userId, filters);
       return res.json(summary);
     } catch (error) {
-      console.error('Error getting transaction summary:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
     }
   }

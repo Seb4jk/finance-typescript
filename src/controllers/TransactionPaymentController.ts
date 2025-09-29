@@ -31,7 +31,6 @@ export class TransactionPaymentController {
         data: payments
       });
     } catch (error) {
-      console.error('Error al obtener los pagos:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener los pagos'
@@ -83,7 +82,6 @@ export class TransactionPaymentController {
         data: payment
       });
     } catch (error) {
-      console.error('Error al obtener el pago:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener el pago'
@@ -150,7 +148,6 @@ export class TransactionPaymentController {
         data: { id: paymentId }
       });
     } catch (error) {
-      console.error('Error al crear el pago:', error);
       res.status(500).json({
         success: false,
         message: 'Error al crear el pago'
@@ -233,7 +230,6 @@ export class TransactionPaymentController {
         message: 'Pago actualizado correctamente'
       });
     } catch (error) {
-      console.error('Error al actualizar el pago:', error);
       res.status(500).json({
         success: false,
         message: 'Error al actualizar el pago'
@@ -295,7 +291,6 @@ export class TransactionPaymentController {
         message: 'Pago eliminado correctamente'
       });
     } catch (error) {
-      console.error('Error al eliminar el pago:', error);
       res.status(500).json({
         success: false,
         message: 'Error al eliminar el pago'
@@ -339,7 +334,6 @@ export class TransactionPaymentController {
         }
       });
     } catch (error) {
-      console.error('Error al obtener el resumen de pagos:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener el resumen de pagos'

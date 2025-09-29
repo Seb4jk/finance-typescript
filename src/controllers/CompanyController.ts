@@ -20,7 +20,6 @@ export class CompanyController {
         data: companies
       });
     } catch (error) {
-      console.error('Error al obtener las compañías asignadas:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener las compañías asignadas'
@@ -44,7 +43,6 @@ export class CompanyController {
         data: companies
       });
     } catch (error) {
-      console.error('Error al obtener las compañías:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener las compañías'
@@ -98,7 +96,6 @@ export class CompanyController {
         data: company
       });
     } catch (error) {
-      console.error('Error al obtener la compañía:', error);
       res.status(500).json({
         success: false,
         message: 'Error al obtener la compañía'
@@ -165,7 +162,6 @@ export class CompanyController {
         data: { id: companyId }
       });
     } catch (error) {
-      console.error('Error al crear la compañía:', error);
       res.status(500).json({
         success: false,
         message: 'Error al crear la compañía'
@@ -253,7 +249,6 @@ export class CompanyController {
         message: 'Compañía actualizada correctamente'
       });
     } catch (error) {
-      console.error('Error al actualizar la compañía:', error);
       res.status(500).json({
         success: false,
         message: 'Error al actualizar la compañía'
@@ -330,7 +325,6 @@ export class CompanyController {
         message: 'Usuario agregado a la compañía correctamente'
       });
     } catch (error) {
-      console.error('Error al agregar usuario a la compañía:', error);
       res.status(500).json({
         success: false,
         message: 'Error al agregar usuario a la compañía'
@@ -402,7 +396,6 @@ export class CompanyController {
         message: 'Usuario eliminado de la compañía correctamente'
       });
     } catch (error) {
-      console.error('Error al eliminar usuario de la compañía:', error);
       res.status(500).json({
         success: false,
         message: 'Error al eliminar usuario de la compañía'

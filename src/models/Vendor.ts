@@ -6,21 +6,19 @@ export class VendorModel {
   static async create(data: Omit<Vendor, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
     const [result] = await pool.execute<ResultSetHeader>(
       `INSERT INTO vendors (
-        name, tax_id, contact_name, email, phone, address, 
-        city, country, industry, notes, user_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        name, tax_id, business_activity, email, phone, address, region_id, commune_id, notes, user_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.name,
-        data.tax_id,
-        data.contact_name,
-        data.email,
-        data.phone,
-        data.address,
-        data.city,
-        data.country,
-        data.industry || null,
-        data.notes || null,
-        data.user_id
+        data.name ?? null,
+        data.tax_id ?? null,
+        data.business_activity ?? null,
+        data.email ?? null,
+        data.phone ?? null,
+        data.address ?? null,
+        data.region_id ?? null,
+        data.commune_id ?? null,
+        data.notes ?? null,
+        data.user_id ?? null
       ]
     );
     
@@ -43,32 +41,30 @@ export class VendorModel {
     return vendors[0] || null;
   }
 
-  static async findAll(userId: string, filters: { name?: string, industry?: string, country?: string, tax_id?: string } = {}): Promise<Vendor[]> {
-    let query = 'SELECT * FROM vendors WHERE user_id = ?';
+  static async findAll(userId: string, filters: { name?: string, region_id?: number, commune_id?: number, tax_id?: string } = {}): Promise<Vendor[]> {
+    let query = `SELECT v.id, v.name, v.tax_id, v.business_activity, v.email, v.phone, v.address, v.region_id, v.commune_id, v.notes, r.name as region_name, c.name as commune_name
+                 FROM vendors v
+                 INNER JOIN regions r ON v.region_id = r.id
+                 INNER JOIN communes c ON v.commune_id = c.id
+                 WHERE v.user_id = ?`;
     const params: any[] = [userId];
-    
     if (filters.name) {
-      query += ' AND name LIKE ?';
+      query += ' AND v.name LIKE ?';
       params.push(`%${filters.name}%`);
     }
-    
-    if (filters.industry) {
-      query += ' AND industry LIKE ?';
-      params.push(`%${filters.industry}%`);
+    if (filters.region_id) {
+      query += ' AND v.region_id = ?';
+      params.push(filters.region_id);
     }
-    
-    if (filters.country) {
-      query += ' AND country LIKE ?';
-      params.push(`%${filters.country}%`);
+    if (filters.commune_id) {
+      query += ' AND v.commune_id = ?';
+      params.push(filters.commune_id);
     }
-    
     if (filters.tax_id) {
-      query += ' AND tax_id LIKE ?';
+      query += ' AND v.tax_id LIKE ?';
       params.push(`%${filters.tax_id}%`);
     }
-    
-    query += ' ORDER BY name ASC';
-    
+    query += ' ORDER BY v.name ASC';
     const [vendors] = await pool.execute<Vendor[]>(query, params);
     return vendors;
   }
